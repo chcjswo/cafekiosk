@@ -8,6 +8,7 @@ package me.mocadev.cafekiosk.unit.beverage;
  * @since 2023-06-19
  **/
 public class Americano implements Beverage {
+
 	@Override
 	public String getName() {
 		return "아메리카노";
