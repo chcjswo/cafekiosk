@@ -3,6 +3,7 @@ package me.mocadev.cafekiosk.spring.api.controller.order.request;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * @author chcjswo
@@ -12,6 +13,7 @@ import lombok.Getter;
  * @since 2023-07-24
  **/
 @Getter
+@NoArgsConstructor
 public class OrderCreateRequest {
 
 	private List<String> productNumbers;

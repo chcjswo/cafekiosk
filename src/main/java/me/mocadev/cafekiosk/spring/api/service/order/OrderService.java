@@ -1,6 +1,8 @@
 package me.mocadev.cafekiosk.spring.api.service.order;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import me.mocadev.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
 import me.mocadev.cafekiosk.spring.api.service.order.response.OrderResponse;
@@ -26,11 +28,20 @@ public class OrderService {
 
 	public OrderResponse createOrder(OrderCreateRequest orderCreateRequest) {
 		List<String> productNumbers = orderCreateRequest.getProductNumbers();
-		List<Product> products = productRepository.findAllByProductNumberIn(productNumbers);
+		List<Product> list = findProductsBy(productNumbers);
 
-		Order order = Order.create(products);
+		Order order = Order.create(list);
 		Order savedOrder = orderRepository.save(order);
 
 		return OrderResponse.of(savedOrder);
+	}
+
+	private List<Product> findProductsBy(List<String> productNumbers) {
+		List<Product> products = productRepository.findAllByProductNumberIn(productNumbers);
+		Map<String, Product> productMap = products.stream()
+			.collect(Collectors.toMap(Product::getProductNumber, product -> product));
+		return productNumbers.stream()
+			.map(productMap::get)
+			.toList();
 	}
 }
