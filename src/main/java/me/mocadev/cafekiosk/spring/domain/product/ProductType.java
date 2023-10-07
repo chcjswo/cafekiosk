@@ -1,5 +1,7 @@
 package me.mocadev.cafekiosk.spring.domain.product;
 
+import java.util.List;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -9,6 +11,7 @@ import lombok.RequiredArgsConstructor;
  * @github https://github.com/chcjswo
  * @since 2023-07-20
  **/
+@Getter
 @RequiredArgsConstructor
 public enum ProductType {
 
@@ -18,4 +21,7 @@ public enum ProductType {
 
 	private final String text;
 
+	public static boolean containsStockType(ProductType type) {
+		return List.of(BOTTLE, BAKERY).contains(type);
+	}
 }

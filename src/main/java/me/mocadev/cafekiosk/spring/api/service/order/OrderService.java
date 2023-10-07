@@ -10,6 +10,9 @@ import me.mocadev.cafekiosk.spring.domain.order.Order;
 import me.mocadev.cafekiosk.spring.domain.order.OrderRepository;
 import me.mocadev.cafekiosk.spring.domain.product.Product;
 import me.mocadev.cafekiosk.spring.domain.product.ProductRepository;
+import me.mocadev.cafekiosk.spring.domain.product.ProductType;
+import me.mocadev.cafekiosk.spring.domain.stock.Stock;
+import me.mocadev.cafekiosk.spring.domain.stock.StockRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,12 +28,24 @@ public class OrderService {
 
 	private final ProductRepository productRepository;
 	private final OrderRepository orderRepository;
+	private final StockRepository stockRepository;
 
 	public OrderResponse createOrder(OrderCreateRequest orderCreateRequest) {
 		List<String> productNumbers = orderCreateRequest.getProductNumbers();
-		List<Product> list = findProductsBy(productNumbers);
+		List<Product> products = findProductsBy(productNumbers);
 
-		Order order = Order.create(list);
+		// 재고 차감 체크가 필요한 상품들 filter
+		List<String> stockProductNumbers = products.stream()
+			.filter(product -> ProductType.containsStockType(product.getType()))
+			.map(Product::getProductNumber)
+			.toList();
+		// 재고 엔티티 조회
+		List<Stock> stocks = stockRepository.findAllByProductNumberIn(stockProductNumbers);
+
+		// 상품별 counting
+		// 재고 차감
+
+		Order order = Order.create(products);
 		Order savedOrder = orderRepository.save(order);
 
 		return OrderResponse.of(savedOrder);
