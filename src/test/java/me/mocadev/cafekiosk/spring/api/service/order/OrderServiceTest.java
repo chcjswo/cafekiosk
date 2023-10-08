@@ -1,7 +1,7 @@
 package me.mocadev.cafekiosk.spring.api.service.order;
 
 import static me.mocadev.cafekiosk.spring.domain.product.ProductSellingStatus.*;
-import static me.mocadev.cafekiosk.spring.domain.product.ProductType.HANDMADE;
+import static me.mocadev.cafekiosk.spring.domain.product.ProductType.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
@@ -30,7 +30,6 @@ import org.springframework.test.context.ActiveProfiles;
  * @github https://github.com/chcjswo
  * @since 2023-07-24
  **/
-@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
 class OrderServiceTest {
@@ -55,6 +54,7 @@ class OrderServiceTest {
 		orderProductRepository.deleteAllInBatch();
 		productRepository.deleteAllInBatch();
 		orderRepository.deleteAllInBatch();
+		stockRepository.deleteAllInBatch();
 	}
 
 	@DisplayName("주문번호 리스트를 받아 주문을 생성한다.")
@@ -87,12 +87,12 @@ class OrderServiceTest {
 	@Test
 	void createOrderWithStock() {
 		// given
-		Product product1 = createProduct(HANDMADE, "001", "아메리카노", 4000, SELLING);
-		Product product2 = createProduct(HANDMADE, "002", "카페라떼", 4500, HOLD);
+		Product product1 = createProduct(BOTTLE, "001", "아메리카노", 4000, SELLING);
+		Product product2 = createProduct(BAKERY, "002", "카페라떼", 4500, HOLD);
 		Product product3 = createProduct(HANDMADE, "003", "팥빙수", 7000, NOT_SELLING);
 		productRepository.saveAll(List.of(product1, product2, product3));
 
-		Stock stock1 = Stock.create("001", 1);
+		Stock stock1 = Stock.create("001", 2);
 		Stock stock2 = Stock.create("002", 2);
 
 		stockRepository.saveAll(List.of(stock1, stock2));
@@ -125,6 +125,31 @@ class OrderServiceTest {
 				tuple("001", 0),
 				tuple("002", 1)
 			);
+	}
+
+	@DisplayName("재고가 부족한 상품으로 주문을 생성하면 예외가 발생한다.")
+	@Test
+	void createOrderWithStock2() {
+		// given
+		Product product1 = createProduct(BOTTLE, "001", "아메리카노", 4000, SELLING);
+		Product product2 = createProduct(BAKERY, "002", "카페라떼", 4500, HOLD);
+		Product product3 = createProduct(HANDMADE, "003", "팥빙수", 7000, NOT_SELLING);
+		productRepository.saveAll(List.of(product1, product2, product3));
+
+		Stock stock1 = Stock.create("001", 1);
+		Stock stock2 = Stock.create("002", 2);
+
+		stockRepository.saveAll(List.of(stock1, stock2));
+
+		OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+			.productNumbers(List.of("001", "001", "002", "003"))
+			.build();
+
+		// when
+		// then
+		assertThatThrownBy(() -> orderService.createOrder(orderCreateRequest))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessageContaining("001 재고가 부족합니다.");
 	}
 
 	@DisplayName("중복되는 상품번호 리스트로 주문을 생성할 수 있다.")
