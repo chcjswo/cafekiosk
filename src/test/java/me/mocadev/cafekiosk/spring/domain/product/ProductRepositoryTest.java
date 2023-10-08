@@ -4,7 +4,6 @@ import static me.mocadev.cafekiosk.spring.domain.product.ProductSellingStatus.*;
 import static me.mocadev.cafekiosk.spring.domain.product.ProductType.HANDMADE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
-import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,20 +29,8 @@ class ProductRepositoryTest {
 	@Test
 	void findAllBySellingStatusIn() {
 		// given
-		Product product1 = Product.builder()
-			.productNumber("001")
-			.name("아메리카노")
-			.price(1000)
-			.sellingStatus(SELLING)
-			.type(HANDMADE)
-			.build();
-		Product product2 = Product.builder()
-			.productNumber("002")
-			.name("카페라테")
-			.price(4000)
-			.sellingStatus(HOLD)
-			.type(HANDMADE)
-			.build();
+		Product product1 = createProduct("001", "아메리카노", 1000, SELLING, HANDMADE);
+		Product product2 = createProduct("002", "카페라테", 4000, HOLD, HANDMADE);
 		productRepository.saveAll(List.of(product1, product2));
 
 		// when
@@ -62,27 +49,9 @@ class ProductRepositoryTest {
 	@Test
 	void findAllByProductNumberIn() {
 		// given
-		Product product1 = Product.builder()
-			.productNumber("001")
-			.type(HANDMADE)
-			.sellingStatus(SELLING)
-			.name("아메리카노")
-			.price(4000)
-			.build();
-		Product product2 = Product.builder()
-			.productNumber("002")
-			.type(HANDMADE)
-			.sellingStatus(HOLD)
-			.name("카페라떼")
-			.price(4500)
-			.build();
-		Product product3 = Product.builder()
-			.productNumber("003")
-			.type(HANDMADE)
-			.sellingStatus(NOT_SELLING)
-			.name("팥빙수")
-			.price(7000)
-			.build();
+		Product product1 = createProduct("001", "아메리카노", 1000, SELLING, HANDMADE);
+		Product product2 = createProduct("002", "카페라떼", 4500, HOLD, HANDMADE);
+		Product product3 = createProduct("003", "팥빙수", 7000, NOT_SELLING, HANDMADE);
 		productRepository.saveAll(List.of(product1, product2, product3));
 
 		// when
@@ -95,5 +64,42 @@ class ProductRepositoryTest {
 				tuple("001", "아메리카노", SELLING),
 				tuple("002", "카페라떼", HOLD)
 			);
+	}
+
+	@DisplayName("가장 마지막으로 저장한 상품의 상품 번호를 조회한다.")
+	@Test
+	void findLatestProduct() {
+		// given
+		String targetProductNumber = "003";
+		Product product1 = createProduct("001", "아메리카노", 1000, SELLING, HANDMADE);
+		Product product2 = createProduct("002", "카페라테", 4500, HOLD, HANDMADE);
+		Product product3 = createProduct(targetProductNumber, "팥빙수", 7000, NOT_SELLING, HANDMADE);
+		productRepository.saveAll(List.of(product1, product2, product3));
+
+		// when
+		String latestProductNumber = productRepository.findLatestProductNumber();
+
+		// then;
+		assertThat(latestProductNumber).isEqualTo(targetProductNumber);
+	}
+
+	@DisplayName("가장 마지막으로 저장한 상품의 상품 번호를 조회할 때, 저장된 상품이 없으면 null을 반환한다.")
+	@Test
+	void findLatestProduct2() {
+		// when
+		String latestProductNumber = productRepository.findLatestProductNumber();
+
+		// then
+		assertThat(latestProductNumber).isNull();
+	}
+
+	private Product createProduct(String productNumber, String name, int price, ProductSellingStatus sellingStatus, ProductType type) {
+		return Product.builder()
+			.productNumber(productNumber)
+			.name(name)
+			.price(price)
+			.sellingStatus(sellingStatus)
+			.type(type)
+			.build();
 	}
 }
