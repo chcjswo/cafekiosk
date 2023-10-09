@@ -1,6 +1,7 @@
 package me.mocadev.cafekiosk.spring.api.controller.order;
 
 import lombok.RequiredArgsConstructor;
+import me.mocadev.cafekiosk.spring.api.ApiResponse;
 import me.mocadev.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
 import me.mocadev.cafekiosk.spring.api.service.order.OrderService;
 import me.mocadev.cafekiosk.spring.api.service.order.response.OrderResponse;
@@ -22,7 +23,7 @@ public class OrderController {
 	private final OrderService orderService;
 
 	@PostMapping("/api/v1/orders/new")
-	public OrderResponse createOrder(@RequestBody OrderCreateRequest orderCreateRequest) {
-		return orderService.createOrder(orderCreateRequest);
+	public ApiResponse<OrderResponse> createOrder(@RequestBody OrderCreateRequest request) {
+		return ApiResponse.ok(orderService.createOrder(request.toServiceRequest()));
 	}
 }

@@ -3,6 +3,7 @@ package me.mocadev.cafekiosk.spring.api.service.product;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import me.mocadev.cafekiosk.spring.api.controller.product.dto.request.ProductCreateRequest;
+import me.mocadev.cafekiosk.spring.api.service.product.request.ProductCreateServiceRequest;
 import me.mocadev.cafekiosk.spring.api.service.product.response.ProductResponse;
 import me.mocadev.cafekiosk.spring.domain.product.Product;
 import me.mocadev.cafekiosk.spring.domain.product.ProductRepository;
@@ -25,7 +26,7 @@ public class ProductService {
 	private final ProductRepository productRepository;
 
 	@Transactional
-	public ProductResponse createProduct(ProductCreateRequest request) {
+	public ProductResponse createProduct(ProductCreateServiceRequest request) {
 		final String nextProductNumber = createNextProductNumber();
 		final Product product = request.toEntity(nextProductNumber);
 		final Product savedProduct = productRepository.save(product);

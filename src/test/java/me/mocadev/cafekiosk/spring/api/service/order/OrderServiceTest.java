@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import jakarta.transaction.Transactional;
 import me.mocadev.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
+import me.mocadev.cafekiosk.spring.api.service.order.request.OrderCreateServiceRequest;
 import me.mocadev.cafekiosk.spring.api.service.order.response.OrderResponse;
 import me.mocadev.cafekiosk.spring.domain.order.OrderProductRepository;
 import me.mocadev.cafekiosk.spring.domain.order.OrderRepository;
@@ -66,12 +67,12 @@ class OrderServiceTest {
 		Product product3 = createProduct(HANDMADE, "003", "팥빙수", 7000, NOT_SELLING);
 		productRepository.saveAll(List.of(product1, product2, product3));
 
-		OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+		OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
 			.productNumbers(List.of("001", "002"))
 			.build();
 
 		// when
-		OrderResponse orderResponse = orderService.createOrder(orderCreateRequest);
+		OrderResponse orderResponse = orderService.createOrder(request);
 
 		// then
 		assertThat(orderResponse.getId()).isNotNull();
@@ -97,12 +98,12 @@ class OrderServiceTest {
 
 		stockRepository.saveAll(List.of(stock1, stock2));
 
-		OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+		OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
 			.productNumbers(List.of("001", "001", "002", "003"))
 			.build();
 
 		// when
-		OrderResponse orderResponse = orderService.createOrder(orderCreateRequest);
+		OrderResponse orderResponse = orderService.createOrder(request);
 
 		// then
 		assertThat(orderResponse.getId()).isNotNull();
@@ -141,13 +142,13 @@ class OrderServiceTest {
 
 		stockRepository.saveAll(List.of(stock1, stock2));
 
-		OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+		OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
 			.productNumbers(List.of("001", "001", "002", "003"))
 			.build();
 
 		// when
 		// then
-		assertThatThrownBy(() -> orderService.createOrder(orderCreateRequest))
+		assertThatThrownBy(() -> orderService.createOrder(request))
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessageContaining("001 재고가 부족합니다.");
 	}
@@ -161,12 +162,12 @@ class OrderServiceTest {
 		Product product3 = createProduct(HANDMADE, "003", "팥빙수", 7000, NOT_SELLING);
 		productRepository.saveAll(List.of(product1, product2, product3));
 
-		OrderCreateRequest orderCreateRequest = OrderCreateRequest.builder()
+		OrderCreateServiceRequest request = OrderCreateServiceRequest.builder()
 			.productNumbers(List.of("001", "001"))
 			.build();
 
 		// when
-		OrderResponse orderResponse = orderService.createOrder(orderCreateRequest);
+		OrderResponse orderResponse = orderService.createOrder(request);
 
 		// then
 		assertThat(orderResponse.getId()).isNotNull();

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import me.mocadev.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
+import me.mocadev.cafekiosk.spring.api.service.order.request.OrderCreateServiceRequest;
 import me.mocadev.cafekiosk.spring.api.service.order.response.OrderResponse;
 import me.mocadev.cafekiosk.spring.domain.order.Order;
 import me.mocadev.cafekiosk.spring.domain.order.OrderRepository;
@@ -37,8 +38,8 @@ public class OrderService {
 	 * optimistic lock / pessimistic lock
 	 */
 	@Transactional
-	public OrderResponse createOrder(OrderCreateRequest orderCreateRequest) {
-		List<String> productNumbers = orderCreateRequest.getProductNumbers();
+	public OrderResponse createOrder(OrderCreateServiceRequest request) {
+		List<String> productNumbers = request.getProductNumbers();
 		List<Product> products = findProductsBy(productNumbers);
 
 		deductStockQuantity(products);
