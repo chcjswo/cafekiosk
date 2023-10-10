@@ -4,6 +4,7 @@ import static me.mocadev.cafekiosk.spring.domain.product.ProductSellingStatus.SE
 import static me.mocadev.cafekiosk.spring.domain.product.ProductType.HANDMADE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import me.mocadev.cafekiosk.spring.domain.product.Product;
 import me.mocadev.cafekiosk.spring.domain.product.ProductSellingStatus;
@@ -22,7 +23,7 @@ class OrderTest {
 
 	@DisplayName("주문 생성 시 상품 리스트에서 주문의 총 금액을 계산한다.")
 	@Test
-	void calculateTotalPrice() throws Exception {
+	void calculateTotalPrice() {
 		// given
 		List<Product> products = List.of(
 			createProduct(HANDMADE, "001", "아메리카노1", 4000, SELLING),
@@ -30,7 +31,7 @@ class OrderTest {
 		);
 
 		// when
-		Order order = Order.create(products);
+		Order order = Order.create(products, LocalDateTime.now());
 
 		// then
 		assertThat(order.getTotalPrice()).isEqualTo(7000);
@@ -38,7 +39,7 @@ class OrderTest {
 
 	@DisplayName("주문 생성 시 주문 상태는 INIT이다.")
 	@Test
-	void init() throws Exception {
+	void init() {
 		// given
 		List<Product> products = List.of(
 			createProduct(HANDMADE, "001", "아메리카노1", 4000, SELLING),
@@ -46,7 +47,7 @@ class OrderTest {
 		);
 
 		// when
-		Order order = Order.create(products);
+		Order order = Order.create(products, LocalDateTime.now());
 
 		// then
 		assertThat(order.getOrderStatus()).isEqualByComparingTo(OrderStatus.INIT);

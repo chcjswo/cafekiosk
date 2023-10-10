@@ -1,12 +1,12 @@
 package me.mocadev.cafekiosk.spring.api.service.order;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import me.mocadev.cafekiosk.spring.api.controller.order.request.OrderCreateRequest;
 import me.mocadev.cafekiosk.spring.api.service.order.request.OrderCreateServiceRequest;
 import me.mocadev.cafekiosk.spring.api.service.order.response.OrderResponse;
 import me.mocadev.cafekiosk.spring.domain.order.Order;
@@ -44,7 +44,7 @@ public class OrderService {
 
 		deductStockQuantity(products);
 
-		Order order = Order.create(products);
+		Order order = Order.create(products, LocalDateTime.now());
 		Order savedOrder = orderRepository.save(order);
 
 		return OrderResponse.of(savedOrder);

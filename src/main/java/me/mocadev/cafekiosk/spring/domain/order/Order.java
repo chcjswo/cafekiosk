@@ -12,8 +12,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import me.mocadev.cafekiosk.spring.domain.orderproduct.OrderProduct;
 import me.mocadev.cafekiosk.spring.domain.product.BaseEntity;
 import me.mocadev.cafekiosk.spring.domain.product.Product;
@@ -25,6 +27,7 @@ import me.mocadev.cafekiosk.spring.domain.product.Product;
  * @github https://github.com/chcjswo
  * @since 2023-07-24
  **/
+@ToString(exclude = "orderProducts")
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Table(name = "orders")
@@ -45,17 +48,22 @@ public class Order extends BaseEntity {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	private List<OrderProduct> orderProducts = new ArrayList<>();
 
-	public Order(List<Product> products) {
-		this.orderStatus = OrderStatus.INIT;
+	@Builder
+	private Order(OrderStatus orderStatus, LocalDateTime registeredDateTime, List<Product> products) {
+		this.orderStatus = orderStatus;
 		this.totalPrice = getTotalPrice(products);
-		this.registeredDateTime = LocalDateTime.now();
+		this.registeredDateTime = registeredDateTime;
 		this.orderProducts = products.stream()
 			.map(product -> new OrderProduct(this, product))
 			.toList();
 	}
 
-	public static Order create(List<Product> products) {
-		return new Order(products);
+	public static Order create(List<Product> products, LocalDateTime registeredDateTime) {
+		return Order.builder()
+			.orderStatus(OrderStatus.INIT)
+			.products(products)
+			.registeredDateTime(registeredDateTime)
+			.build();
 	}
 
 	private int getTotalPrice(List<Product> products) {
